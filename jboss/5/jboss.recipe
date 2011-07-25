@@ -1,0 +1,36 @@
+# vim: ts=4 sw=4 expandtab ai
+#
+# Copyright (c) 2008-2011 rPath, Inc.
+# This file is distributed under the terms of the MIT License.
+# A copy is available at http://www.rpath.com/permanent/mit-license.html
+#
+# JBoss Application Server
+#
+class JBoss(PackageRecipe):
+    name = 'jboss'
+    version = '5.1.0.GA'
+
+    buildRequires = [ 'unzip:rpm' ] 
+
+    def setup(r):
+        r.macros.appdir = '/srv/%(name)s'
+
+        # The source archive, moved to an install directory that is not
+        #   encoded with the version, so that we don't have to hard code
+        #   the exact version in the init script and info-jboss trove
+        r.addArchive('mirror://sourceforge/%(name)s/%(name)s-%(version)s.zip', dir='/srv')
+        r.Move('/srv/%(name)s-%(version)s', '%(appdir)s')
+
+        # The init script is a modified version of the script delivered
+        #   with the source archive
+        r.addSource('jboss.init', dest='%(initdir)s/jboss', macros=True, mode=0755)
+
+        r.Ownership('jboss','jboss','%(appdir)s.*')
+        r.ExcludeDirectories(exceptions='%(appdir)s.*')
+
+        # Ignore Java dependencies provided by the package itself
+        #   or by the JRE
+        r.Requires(exceptions='.*\.(java|jar|zip|class)')
+        r.Provides(exceptions='.*\.(java|jar|zip|class)')
+
+        r.Requires('java-1.6.0-openjdk:rpm', '%(appdir)s/bin/.*')

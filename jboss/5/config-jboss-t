@@ -1,0 +1,8 @@
+name ignored
+
+[genshi]
+template /srv/jboss/rpathconfig/server.xml-template
+file /srv/jboss/server/default/deploy/jbossweb.sar/server.xml 
+
+[exec]
+command /srv/jboss/rpathconfig/jboss-service-only.pl

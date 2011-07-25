@@ -1,0 +1,56 @@
+# vim: ts=4 sw=4 expandtab ai
+#
+# Copyright (c) 2008-2011 rPath, Inc.
+#
+# This file is distributed under the terms of the MIT License.
+# A copy is available at http://www.rpath.com/permanent/mit-license.html
+#
+# This is a template+script configurator, without a superclass, so we
+# need to lay down the script and template and the emcee control file,
+# and add the config descriptor as metadata.
+class OverrideRecipe(PackageRecipe):
+    name = 'config-jboss'
+    version = '1.0'
+    buildRequires = [ ]
+
+    def setup(r):
+        r.addSource('jboss-service-only.pl', dir='/srv/jboss/rpathconfig/', mode=0755)
+        r.addSource('server.xml-template', dir='/srv/jboss/rpathconfig/', mode=0644)
+        r.addSource('config-jboss-t', dir='/usr/lib/iconfig/handlers', mode=0644)
+
+        # Note: Superclass will also add a dep on the config
+        # infrastructure packages.
+        r.Create("%(prefix)s/lib/iconfig/properties/jboss_port.iprop",
+                 contents='''
+   <field>
+     <name>jboss_port</name>
+     <descriptions>
+       <desc>JBoss port number</desc>
+     </descriptions>
+     <prompt>
+       <desc>JBoss port number</desc>
+     </prompt>
+     <type>int</type>
+     <constraints>
+       <range><min>1</min><max>65535</max></range>
+     </constraints>
+     <required>true</required>
+     <default>8080</default>
+   </field>
+''')
+
+# Do I need this?
+        r.Create("%(prefix)s/lib/iconfig/properties/jboss_enabled.iprop",
+                 contents='''
+   <field>
+     <name>jboss_enabled</name>
+     <descriptions>
+       <desc>JBoss service enabled</desc>
+     </descriptions>
+     <prompt>
+       <desc>Tells whether JBoss should run.</desc>
+     </prompt>
+     <type>bool</type>
+     <default>true</default>
+   </field>
+''')

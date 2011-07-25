@@ -1,0 +1,19 @@
+# vim: ts=4 sw=4 expandtab ai
+#
+# Copyright (c) 2010 rPath, Inc.
+#
+# This file is distributed under the terms of the MIT License.
+# A copy is available at http://www.rpath.com/permanent/mit-license.html
+#
+
+class info_demo(UserInfoRecipe):
+    name = 'info-jboss'
+    version = '1'
+
+    def setup(r):
+        # password is "password"
+        r.User('jboss', 501,
+               homedir='/srv/jboss',
+               comment='JBoss',
+               shell='/bin/bash')
+               #saltedPassword='$1$2ktcDbOL$BQwq0G70TxVXaUfy61Or90')
