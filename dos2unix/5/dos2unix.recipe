@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2011 jtanner (jtanner@rpath.com)
+#
+
+class Dos2unix(CPackageRecipe):
+    name = 'dos2unix'
+    version = '5.3'
+
+    buildRequires = ['gettext:rpm']
+
+    def setup(r):
+	r.addArchive('http://sourceforge.net/projects/dos2unix/files/dos2unix/5.3/dos2unix-5.3.tar.gz')
+	r.Make()
+	r.MakeInstall()
+
