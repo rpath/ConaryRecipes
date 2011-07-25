@@ -1,0 +1,41 @@
+#
+# Copyright (c) 2011 jtanner (jtanner@rpath.com)
+#
+
+class Jboss(PackageRecipe):
+    name = 'jboss'
+    version = '6'
+
+    buildRequires = ['unzip:rpm', 'chkconfig:rpm']
+
+    def setup(r):
+	r.addArchive('jboss-as-distribution-6.0.0.Final.zip', dir='%(servicedir)s/')
+	#r.addArchive('http://sourceforge.net/projects/jboss/files/JBoss/JBoss-6.0.0.Final/%(name)s-as-distribution-%(version)s.0.0.Final.zip', dir='%(servicedir)s/')
+
+	#rename the jboss dir and set permissions, exceptions are required to chown dirs
+	r.Move('%(servicedir)s/%(name)s-%(version)s.0.0.Final/', '%(servicedir)s/%(name)s-%(version)s')
+	r.Ownership('jboss', 'jboss', '%(servicedir)s/%(name)s-%(version)s/')
+	r.ExcludeDirectories(exceptions='%(servicedir)s/%(name)s-%(version)s/')
+
+	# the solaris init script creates a bad dep on /usr/bin/bash
+	r.Remove('%(servicedir)s/%(name)s-%(version)s/bin/jboss_init_solaris.sh')
+
+	#copy over the init script
+	r.addSource('jboss.init', dest='%(initdir)s/%(name)s', mode=0755)
+
+	#copy over the jboss user's .bash_profile
+	r.addSource('jboss.bash_profile', dest='/home/jboss/.bash_profile', mode=0644)
+	r.Ownership('jboss', 'jboss', '/home/jboss/')
+	
+	#set the proper location of jboss in the requisite scripts
+	r.Replace('JBOSS_HOME=', 'JBOSS_HOME=%(servicedir)s/%(name)s-%(version)s', '/home/jboss/.bash_profile')
+	r.Replace('JBOSS_HOME:-""', 'JBOSS_HOME:-"%(servicedir)s/%(name)s-%(version)s"', '%(initdir)s/%(name)s') 
+	r.Replace('JAVA_HOME=', 'JAVA_HOME=/usr/java/jdk1.6.0_26', '/home/jboss/.bash_profile')
+	r.Replace('JAVAPTH:-""', 'JAVAPTH:-"/usr/java/jdk1.6.0_26"', '%(initdir)s/%(name)s')
+
+
+	#set the admin password
+	r.Replace('admin=admin', 'admin=secretsauce', '%(servicedir)s/%(name)s-%(version)s/server/default/conf/props/jmx-console-users.properties')
+
+	#set the default user and pass
+	r.Replace('kermit=friend', 'user1=password1', '%(servicedir)s/%(name)s-%(version)s/server/default/conf/props/jbossws-roles.properties')

@@ -1,0 +1,11 @@
+#
+# Copyright (c) 2011 jtanner (jtanner@rpath.com)
+#
+
+class info_jboss(UserInfoRecipe):
+    name = 'info-jboss'
+    version = '1'
+
+    def setup(r):
+    	r.User('jboss', 1001, homedir='/home/jboss', shell='/bin/bash')
+
