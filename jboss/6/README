@@ -1,0 +1,18 @@
+
+#FILES
+info-jboss.recipe
+jboss.bash_profile
+jboss.init
+jboss.recipe
+
+
+#USAGE
+rbuild checkout --new info-jboss
+cp info-jboss.recipe info-jboss/.
+rbuild build packages info-jboss -m "initial build"
+
+rbuild checkout --new jboss
+cp jboss.bash_profile jboss/.
+cp jboss.init jboss/.
+cp jboss.recipe jboss/.
+rbuild build packages jboss -m "initial build"
