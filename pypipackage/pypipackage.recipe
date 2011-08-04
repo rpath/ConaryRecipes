@@ -1,0 +1,73 @@
+#
+# Copyright (c) 2011 rPath, Inc.
+# This file is distributed under the terms of the MIT License.
+# A copy is available at http://www.rpath.com/permanent/mit-license.html
+#
+
+class PyPiPackage(PackageRecipe):
+    name = 'pypipackage'
+    version = '1'
+    abstractBaseClass = True
+
+    buildRequires = [
+        'python26-devel:rpm', 'python26-libs:rpm', 'python26-distribute:rpm', ]
+    def setup(r):
+        r.setupDefaults()
+        r.setupMacros()
+        r.unpack()
+        r.build()
+        r.install()
+        r.policy()
+
+    def setupDefaults(r):
+        if not hasattr(r, 'pyname'):
+            r.pyname = r.name
+        if not hasattr(r, 'pypiversion'):
+            r.pypiversion = r.version
+
+    def setupMacros(r):
+        r.macros.pyver = '2.6'
+        r.macros.sitepkgs = '%(libdir)s/python%(pyver)s/site-packages'
+        pybin = '%(bindir)s/python%(pyver)s'
+        r.NormalizePythonInterpreterVersion(versionMap=(
+                ('%(bindir)s/python2.4', pybin),
+                ('/usr/local/bin/python2.4', pybin),
+                ('%(bindir)s/python2.5', pybin),
+                ('/usr/local/bin/python2.5', pybin),
+                ('%(bindir)s/python', pybin),
+                ('/usr/local/bin/python', pybin),
+        ))
+
+    def unpack(r):
+        try:
+            r.addArchive(r.getPackageURL())
+        except ImportError:
+            pass
+
+    def build(r):
+        r.PythonSetup()
+
+    def install(r):
+        pass
+
+    def policy(r):
+        # The egg parser is broken
+        r.EggRequires(exceptions=".*")
+
+    def getPackageURL(r):
+        from setuptools import package_index
+        req = package_index.Requirement.parse("%s==%s" %
+            (r.pyname, r.version))
+        pi = package_index.PackageIndex()
+        # obtain will not filter out eggs, so we need to do it ourselves
+        # return pi.obtain(req).location
+        pi.prescan()
+        pi.find_packages(req)
+        for dist in pi[req.key]:
+            if dist in req and dist.precedence <= package_index.SOURCE_DIST:
+                return r.stripMd5FromUrl(dist.location)
+        return None
+
+    def stripMd5FromUrl(r, url):
+        import re
+        return re.sub('(#md5=[a-h0-9]*)$', '', url)
