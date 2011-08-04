@@ -1,0 +1,10 @@
+This is a superclass for consuming packages in the PyPi Python Package Index
+http://pypi.python.org/pypi
+
+
+#building
+rbuild checkout pypipackage
+cp pypipackage.recipe pypipackage/
+cd pypipackage
+cvc add pypipackage.recipe
+cvc commit -m "adding pypipackage superclass"
